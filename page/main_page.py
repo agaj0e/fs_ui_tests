@@ -1,43 +1,92 @@
 from playwright.sync_api import Page, expect
 
+import re
 
-class MainPage:
-    URL = "https://fstravel.com/"
-    AUTH_URL = "https://auth2.fstravel.com/"
+from page.base_page import BasePage
+from page.login_page import LoginPage
+from page.search_results_page import SearchResultsPage
 
-    def __init__(self, page: Page):
-        self.page = page
-        self.user_icon = page.locator("div.profile-menu__icon-wrapper .account-icon")
-        self.email_input = self.page.locator('#email')
-        self.login_banner = page.get_by_role("heading", name="Войдите в профиль")
-        self.password_input = self.page.locator('#password')
-        self.account_avatar = page.locator('.v-account-img')
+
+class MainPage(BasePage):
+    """Page Object главной страницы https://fstravel.com/."""
+
+    PATH = "/"
+
+    def __init__(self, page: Page, base_url: str, timeout_ms: int = 15000):
+        super().__init__(page, base_url, timeout_ms)
+
+        # Шапка и профиль пользователя
+        self.logo = page.get_by_role("link").filter(has=page.get_by_alt_text("logo"))
+        self.profile_icon = page.locator("div.profile-menu__icon-wrapper .account-icon").first
+        self.account_avatar = page.locator(".v-account-img")
+
+        # Поисковая форма
+        self.hero_heading = page.get_by_role("heading", name="Умный выбор для яркого отдыха")
+        self.tours_tab = page.get_by_role("tab", name="Туры").first
+        self.hotels_tab = page.get_by_role("tab", name="Отели").first
+        self.exotic_tours_tab = page.get_by_role("tab", name="Экс. туры").first
+        self.departure_input = page.get_by_role("textbox", name="Откуда")
+        self.destination_input = page.get_by_role("textbox", name="Город, отель или страна")
+        self.search_button = page.get_by_role("button", name="Найти").first
+
+        # Контентные блоки главной страницы
+        self.actions_heading = page.get_by_role("heading", name="Подборка акций")
+        self.more_actions_link = page.get_by_role("link", name="Больше акций")
+        self.destinations_heading = page.get_by_role("heading", name="Популярные направления")
+        self.turkey_destination = page.locator('a[href*="/turkey"]').first
+
+        # Меню авторизованного пользователя
         self.profile_link = page.get_by_role("link", name="Профиль")
-        self.error_message = page.get_by_text("Введен неверный логин или пароль")
 
-    def goto(self):
-        self.page.goto(self.URL, wait_until='domcontentloaded')
+    def goto(self) -> "MainPage":
+        """Открывает главную страницу сайта."""
+        self.page.goto(self.base_url, wait_until="domcontentloaded")
+        self.hero_heading.wait_for(state="visible", timeout=self.timeout_ms)
+        return self
 
-    def open_login_page(self):
-        """Клик по иконке + ожидание загрузки формы"""
-        with self.page.expect_navigation(timeout=15000):
-            self.user_icon.click()
-        self.login_banner.wait_for(state="visible", timeout=10000)
+    def open_login(self) -> LoginPage:
+        """Переходит на страницу входа через иконку профиля."""
+        self.profile_icon.click()
+        self.page.wait_for_url(re.compile(r"auth2\.fstravel\.com"), timeout=self.timeout_ms)
+        return LoginPage(self.page, self.base_url, self.timeout_ms)
 
-    def login(self, email: str, password: str):
-        self.page.fill('input[name="LoginInput.Email"]', email)
-        self.page.fill('input[name="LoginInput.Password"]', password)
-        self.page.click('#login-submit')
+    def search_tours(self) -> SearchResultsPage:
+        """Запускает поиск туров с параметрами по умолчанию на форме."""
+        self.search_button.click()
+        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
+        return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
 
-    def open_profile(self):
+    def switch_to_hotels_tab(self) -> "MainPage":
+        """Переключает форму поиска на вкладку «Отели»."""
+        self.hotels_tab.click()
+        return self
+
+    def switch_to_tours_tab(self) -> "MainPage":
+        """Переключает форму поиска на вкладку «Туры»."""
+        self.tours_tab.click()
+        return self
+
+    def open_popular_destination_turkey(self) -> SearchResultsPage:
+        """Открывает страницу поиска туров в Турцию из блока популярных направлений."""
+        self.turkey_destination.scroll_into_view_if_needed()
+        self.turkey_destination.click()
+        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
+        return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
+
+    def open_profile(self) -> None:
+        """Открывает профиль авторизованного пользователя."""
         self.account_avatar.click()
         self.profile_link.click()
-        self.page.wait_for_load_state('domcontentloaded')
+        self.wait_for_dom()
 
+    def assert_main_page_loaded(self) -> None:
+        """Проверяет ключевые элементы главной страницы."""
+        expect(self.page).to_have_title("Главная")
+        expect(self.hero_heading).to_be_visible()
+        expect(self.search_button).to_be_visible()
+        expect(self.actions_heading).to_be_visible()
+        expect(self.destinations_heading).to_be_visible()
 
-    def open_login_via_icon(self):
-        """Клик по иконке и переход на страницу авторизации"""
-        with self.page.expect_navigation(timeout=10000):
-            self.user_icon.click()
-        # Ждём, что форма входа загрузилась
-        self.login_banner.wait_for(state="visible", timeout=10000)
+    def assert_profile_icon_visible(self) -> None:
+        """Проверяет видимость иконки входа в профиль (десктопная вёрстка)."""
+        expect(self.profile_icon).to_be_visible()
