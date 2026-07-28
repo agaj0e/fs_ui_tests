@@ -1,7 +1,9 @@
 import pytest
 from playwright.sync_api import sync_playwright, Page
 import requests
-
+from dotenv import load_dotenv
+import os
+from dataclasses import dataclass
 
 @pytest.fixture(scope="function")
 def page() -> Page:
@@ -24,8 +26,25 @@ def page() -> Page:
         context.close()
         browser.close()
 
+load_dotenv()
 
+@dataclass
+class Creds:
+    valid_mail: str
+    valid_password: str
+    base_url: str
+    invalid_password: str
+    invalid_mail: str
 
+@pytest.fixture(scope="session")
+def creds() -> Creds:
+    return Creds(
+        valid_mail=os.getenv("EMAIL", ""),
+        valid_password=os.getenv("PASSWORD", ""),
+        base_url=os.getenv("BASE_URL", ""),
+        invalid_password=os.getenv("INVALID_PASSWORD", ""),
+        invalid_mail=os.getenv("INVALID_EMAIL", ""),
+    )
 
 @pytest.fixture(scope="session")
 def api_session():
