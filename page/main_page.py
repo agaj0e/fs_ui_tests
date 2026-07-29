@@ -44,16 +44,24 @@ class MainPage(BasePage):
         self.hero_heading.wait_for(state="visible", timeout=self.timeout_ms)
         return self
 
+    def assert_main_page_loaded(self) -> None:
+        """Проверяет, что главная страница загружена."""
+        self.hero_heading.wait_for(state="visible", timeout=self.timeout_ms)
+
+    def assert_profile_icon_visible(self) -> None:
+        """Проверяет, что иконка профиля видима."""
+        self.profile_icon.wait_for(state="visible", timeout=self.timeout_ms)
+
     def open_login(self) -> LoginPage:
         """Переходит на страницу входа через иконку профиля."""
         self.profile_icon.click()
-        self.page.wait_for_url(re.compile(r"auth2\.fstravel\.com"), timeout=self.timeout_ms)
+        self.wait_for_url_pattern(r"auth2\.fstravel\.com")
         return LoginPage(self.page, self.base_url, self.timeout_ms)
 
     def search_tours(self) -> SearchResultsPage:
         """Запускает поиск туров с параметрами по умолчанию на форме."""
         self.search_button.click()
-        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
+        self.wait_for_url_pattern(r"searchtours")
         return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
 
     def switch_to_hotels_tab(self) -> "MainPage":
@@ -70,7 +78,7 @@ class MainPage(BasePage):
         """Открывает страницу поиска туров в Турцию из блока популярных направлений."""
         self.turkey_destination.scroll_into_view_if_needed()
         self.turkey_destination.click()
-        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
+        self.wait_for_url_pattern(r"searchtours")
         return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
 
     def open_profile(self) -> None:

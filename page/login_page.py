@@ -44,3 +44,15 @@ class LoginPage(BasePage):
     def wait_for_successful_login(self) -> None:
         """Ожидает возврат на основной сайт после успешной авторизации."""
         self.page.wait_for_url(f"{self.base_url}**", timeout=self.timeout_ms)
+
+    def assert_loaded(self) -> None:
+        """Проверяет, что страница авторизации загружена."""
+        self.login_heading.wait_for(state="visible", timeout=self.timeout_ms)
+
+    def assert_invalid_email_error(self) -> None:
+        """Проверяет отображение ошибки для несуществующего email."""
+        self.email_not_found_error.wait_for(state="visible", timeout=self.timeout_ms)
+
+    def assert_invalid_credentials_error(self) -> None:
+        """Проверяет отображение ошибки для неверных учётных данных."""
+        self.invalid_credentials_error.wait_for(state="visible", timeout=self.timeout_ms)

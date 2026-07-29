@@ -13,3 +13,11 @@ class SearchResultsPage(BasePage):
 
         # На странице результатов обычно есть фильтры и список предложений
         self.page_heading = page.locator("h1").first
+
+    def assert_tours_search_opened(self) -> None:
+        """Проверяет, что открыта страница поиска туров."""
+        self.expect_url_contains("searchtours")
+
+    def assert_page_has_title(self) -> None:
+        """Проверяет наличие заголовка на странице результатов."""
+        self.page_heading.wait_for(state="visible", timeout=self.timeout_ms)
