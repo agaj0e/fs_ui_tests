@@ -25,5 +25,5 @@ class BasePage:
         expect(self.page).to_have_url(re.compile(re.escape(fragment)))
 
     def wait_for_url_pattern(self, pattern: str) -> None:
-        """Ожидает, что URL соответствует указанному паттерну (regex)."""
-        self.page.wait_for_url(re.compile(pattern), timeout=self.timeout_ms)
+        """Ожидает, что URL содержит указанный паттерн (regex)."""
+        self.page.wait_for_url(f"**{pattern}**", timeout=self.timeout_ms)
