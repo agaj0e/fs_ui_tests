@@ -1,8 +1,1 @@
-__pycache__/
-*.py[cod]
-*.pyo
-venv/
-exercises/
-.idea/
-pyvenv.cfg
-.env
+Nothing needs to be added to the .gitignore file based on the provided changes, as only Python source files (.py) were modified and no build artifacts, dependencies, or temporary files were included in the changes.
