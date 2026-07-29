@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 from page.base_page import BasePage
 
@@ -21,14 +21,6 @@ class LoginPage(BasePage):
             "Аккаунта с таким Email не существует - пожалуйста зарегистрируйтесь"
         )
 
-    def assert_loaded(self) -> None:
-        """Проверяет, что форма входа отображается."""
-        expect(self.page).to_have_title("Вход")
-        expect(self.login_heading).to_be_visible()
-        expect(self.email_input).to_be_visible()
-        expect(self.password_input).to_be_visible()
-        expect(self.submit_button).to_be_visible()
-
     def fill_email(self, email: str) -> "LoginPage":
         """Заполняет поле email."""
         self.email_input.fill(email)
@@ -48,14 +40,6 @@ class LoginPage(BasePage):
         self.fill_email(email)
         self.fill_password(password)
         self.submit()
-
-    def assert_invalid_email_error(self) -> None:
-        """Проверяет сообщение об отсутствии аккаунта с указанным email."""
-        expect(self.email_not_found_error).to_be_visible()
-
-    def assert_invalid_credentials_error(self) -> None:
-        """Проверяет сообщение о неверном логине или пароле."""
-        expect(self.invalid_credentials_error).to_be_visible()
 
     def wait_for_successful_login(self) -> None:
         """Ожидает возврат на основной сайт после успешной авторизации."""

@@ -1,4 +1,4 @@
-from playwright.sync_api import Page, expect
+from playwright.sync_api import Page
 
 import re
 
@@ -78,15 +78,3 @@ class MainPage(BasePage):
         self.account_avatar.click()
         self.profile_link.click()
         self.wait_for_dom()
-
-    def assert_main_page_loaded(self) -> None:
-        """Проверяет ключевые элементы главной страницы."""
-        expect(self.page).to_have_title("Главная")
-        expect(self.hero_heading).to_be_visible()
-        expect(self.search_button).to_be_visible()
-        expect(self.actions_heading).to_be_visible()
-        expect(self.destinations_heading).to_be_visible()
-
-    def assert_profile_icon_visible(self) -> None:
-        """Проверяет видимость иконки входа в профиль (десктопная вёрстка)."""
-        expect(self.profile_icon).to_be_visible()
