@@ -1,4 +1,5 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
+import re
 
 from page.base_page import BasePage
 
@@ -17,9 +18,19 @@ class LoginPage(BasePage):
 
         # Сообщения об ошибках авторизации
         self.invalid_credentials_error = page.get_by_text("Введен неверный логин или пароль")
+        self.invalid_password_last_try = page.get_by_text(re.compile(r"^Неверный пароль\d+"))
+        self.invalid_password_15min_ban = page.get_by_text(re.compile(r"^Превышено количество попыток \d+"))
         self.email_not_found_error = page.get_by_text(
             "Аккаунта с таким Email не существует - пожалуйста зарегистрируйтесь"
         )
+
+    def assert_loaded(self) -> None:
+        """Проверяет, что форма входа отображается."""
+        expect(self.page).to_have_title("Вход")
+        expect(self.login_heading).to_be_visible()
+        expect(self.email_input).to_be_visible()
+        expect(self.password_input).to_be_visible()
+        expect(self.submit_button).to_be_visible()
 
     def fill_email(self, email: str) -> "LoginPage":
         """Заполняет поле email."""
@@ -41,18 +52,21 @@ class LoginPage(BasePage):
         self.fill_password(password)
         self.submit()
 
+    def assert_invalid_email_error(self) -> None:
+        """Проверяет сообщение об отсутствии аккаунта с указанным email."""
+        expect(self.email_not_found_error).to_be_visible()
+
+    def assert_invalid_credentials_error(self) -> None:
+        """Проверяет сообщение о неверном логине или пароле."""
+        expect(self.invalid_credentials_error).to_be_visible()
+
+    def assert_invalid_password_first_try(self):
+        expect(self.page.get_by_text("Неверный пароль")).to_be_visible()
+
+    def assert_invalid_password_15minban(self) -> None:
+        """Проверяет плашку бана на 15 минут после неправильных попыток"""
+        expect(self.invalid_password_15min_ban).to_be_visible()
+
     def wait_for_successful_login(self) -> None:
         """Ожидает возврат на основной сайт после успешной авторизации."""
         self.page.wait_for_url(f"{self.base_url}**", timeout=self.timeout_ms)
-
-    def assert_loaded(self) -> None:
-        """Проверяет, что страница авторизации загружена."""
-        self.login_heading.wait_for(state="visible", timeout=self.timeout_ms)
-
-    def assert_invalid_email_error(self) -> None:
-        """Проверяет отображение ошибки для несуществующего email."""
-        self.email_not_found_error.wait_for(state="visible", timeout=self.timeout_ms)
-
-    def assert_invalid_credentials_error(self) -> None:
-        """Проверяет отображение ошибки для неверных учётных данных."""
-        self.invalid_credentials_error.wait_for(state="visible", timeout=self.timeout_ms)

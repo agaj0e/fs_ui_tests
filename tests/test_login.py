@@ -32,9 +32,12 @@ def test_login_invalid_password(main_page: MainPage, settings: Settings):
 
     main_page.goto()
     login_page = main_page.open_login()
-    login_page.login(settings.email, settings.invalid_password)
-    login_page.assert_invalid_credentials_error()
+    for attempt in range(1,2):
+        login_page.login(settings.email, settings.invalid_password)
+        login_page.assert_invalid_password_first_try()
 
+    login_page.login(settings.email, settings.invalid_password)
+    login_page.assert_invalid_password_15minban()
 
 @pytest.mark.login
 @pytest.mark.auth_required
@@ -51,3 +54,5 @@ def test_login_valid(main_page: MainPage, settings: Settings):
     expect(main_page.account_avatar).to_be_visible(timeout=settings.default_timeout_ms)
     main_page.open_profile()
     expect(main_page.page.get_by_text("Путешествия")).to_be_visible()
+
+

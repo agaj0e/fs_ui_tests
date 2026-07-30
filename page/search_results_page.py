@@ -1,6 +1,6 @@
 import re
 
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 
 from page.base_page import BasePage
 
@@ -15,9 +15,14 @@ class SearchResultsPage(BasePage):
         self.page_heading = page.locator("h1").first
 
     def assert_tours_search_opened(self) -> None:
-        """Проверяет, что открыта страница поиска туров."""
-        self.expect_url_contains("searchtours")
+        """Проверяет переход на страницу поиска туров."""
+        expect(self.page).to_have_url(re.compile(r"searchtours"))
+
+    def assert_hotels_search_opened(self) -> None:
+        """Проверяет переход на страницу поиска отелей."""
+        expect(self.page).to_have_url(re.compile(r"searchhotel"))
 
     def assert_page_has_title(self) -> None:
-        """Проверяет наличие заголовка на странице результатов."""
-        self.page_heading.wait_for(state="visible", timeout=self.timeout_ms)
+        """Проверяет, что у страницы задан заголовок (не пустой)."""
+        title = self.page.title()
+        assert title, "Заголовок страницы результатов поиска не должен быть пустым"

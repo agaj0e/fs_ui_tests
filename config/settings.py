@@ -30,12 +30,12 @@ class Settings:
 def get_settings() -> Settings:
     """Возвращает объект настроек с значениями по умолчанию для fstravel.com."""
     return Settings(
-        base_url=os.getenv("BASE_URL", "https://fstravel.com/").rstrip("/") + "/",
-        auth_url=os.getenv("AUTH_URL", "https://auth2.fstravel.com/"),
+        base_url=os.getenv("BASE_URL").rstrip("/") + "/",
+        auth_url=os.getenv("AUTH_URL"),
         email=os.getenv("EMAIL", ""),
         password=os.getenv("PASSWORD", ""),
-        invalid_email=os.getenv("INVALID_EMAIL", "invalid@test.com"),
-        invalid_password=os.getenv("INVALID_PASSWORD", "WrongPass123!"),
+        invalid_email=os.getenv("INVALID_EMAIL"),
+        invalid_password=os.getenv("INVALID_PASSWORD"),
         headless=os.getenv("HEADLESS", "true").lower() in {"1", "true", "yes"},
         viewport_width=int(os.getenv("VIEWPORT_WIDTH", "1920")),
         viewport_height=int(os.getenv("VIEWPORT_HEIGHT", "1080")),

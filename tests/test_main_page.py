@@ -3,8 +3,6 @@ import re
 import pytest
 from playwright.sync_api import expect
 
-from config.settings import Settings
-
 
 @pytest.mark.smoke
 def test_main_page_loads(main_page):

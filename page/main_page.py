@@ -1,4 +1,4 @@
-from playwright.sync_api import Page
+from playwright.sync_api import Page, expect
 
 import re
 
@@ -44,24 +44,16 @@ class MainPage(BasePage):
         self.hero_heading.wait_for(state="visible", timeout=self.timeout_ms)
         return self
 
-    def assert_main_page_loaded(self) -> None:
-        """Проверяет, что главная страница загружена."""
-        self.hero_heading.wait_for(state="visible", timeout=self.timeout_ms)
-
-    def assert_profile_icon_visible(self) -> None:
-        """Проверяет, что иконка профиля видима."""
-        self.profile_icon.wait_for(state="visible", timeout=self.timeout_ms)
-
     def open_login(self) -> LoginPage:
         """Переходит на страницу входа через иконку профиля."""
         self.profile_icon.click()
-        self.wait_for_url_pattern(r"auth2\.fstravel\.com")
+        self.page.wait_for_url(re.compile(r"auth2\.fstravel\.com"), timeout=self.timeout_ms)
         return LoginPage(self.page, self.base_url, self.timeout_ms)
 
     def search_tours(self) -> SearchResultsPage:
         """Запускает поиск туров с параметрами по умолчанию на форме."""
         self.search_button.click()
-        self.wait_for_url_pattern(r"searchtours")
+        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
         return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
 
     def switch_to_hotels_tab(self) -> "MainPage":
@@ -78,7 +70,7 @@ class MainPage(BasePage):
         """Открывает страницу поиска туров в Турцию из блока популярных направлений."""
         self.turkey_destination.scroll_into_view_if_needed()
         self.turkey_destination.click()
-        self.wait_for_url_pattern(r"searchtours")
+        self.page.wait_for_url(re.compile(r"searchtours"), timeout=self.timeout_ms)
         return SearchResultsPage(self.page, self.base_url, self.timeout_ms)
 
     def open_profile(self) -> None:
@@ -86,3 +78,15 @@ class MainPage(BasePage):
         self.account_avatar.click()
         self.profile_link.click()
         self.wait_for_dom()
+
+    def assert_main_page_loaded(self) -> None:
+        """Проверяет ключевые элементы главной страницы."""
+        expect(self.page).to_have_title("Главная")
+        expect(self.hero_heading).to_be_visible()
+        expect(self.search_button).to_be_visible()
+        expect(self.actions_heading).to_be_visible()
+        expect(self.destinations_heading).to_be_visible()
+
+    def assert_profile_icon_visible(self) -> None:
+        """Проверяет видимость иконки входа в профиль (десктопная вёрстка)."""
+        expect(self.profile_icon).to_be_visible()
