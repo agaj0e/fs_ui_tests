@@ -47,7 +47,7 @@ class MainPage(BasePage):
     def open_login(self) -> LoginPage:
         """Переходит на страницу входа через иконку профиля."""
         self.profile_icon.click()
-        self.page.wait_for_url(re.compile(r"auth2\.fstravel\.com"), timeout=self.timeout_ms)
+        self.page.wait_for_url(re.compile(r"auth2\.fstravel\.com.*"), timeout=self.timeout_ms)
         return LoginPage(self.page, self.base_url, self.timeout_ms)
 
     def search_tours(self) -> SearchResultsPage:
