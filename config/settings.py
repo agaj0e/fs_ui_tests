@@ -32,8 +32,8 @@ def get_settings() -> Settings:
     return Settings(
         base_url=os.getenv("BASE_URL").rstrip("/") + "/",
         auth_url=os.getenv("AUTH_URL"),
-        email=os.getenv("EMAIL", ""),
-        password=os.getenv("PASSWORD", ""),
+        email=os.getenv("EMAIL"),
+        password=os.getenv("PASSWORD"),
         invalid_email=os.getenv("INVALID_EMAIL"),
         invalid_password=os.getenv("INVALID_PASSWORD"),
         headless=os.getenv("HEADLESS", "true").lower() in {"1", "true", "yes"},

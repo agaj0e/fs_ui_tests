@@ -75,9 +75,12 @@ class MainPage(BasePage):
 
     def open_profile(self) -> None:
         """Открывает профиль авторизованного пользователя."""
-        self.account_avatar.click()
+        self.profile_icon.click()
+        expect(self.profile_link).to_be_visible(timeout=self.timeout_ms)
         self.profile_link.click()
         self.wait_for_dom()
+        print(self.get_current_url())
+
 
     def assert_main_page_loaded(self) -> None:
         """Проверяет ключевые элементы главной страницы."""

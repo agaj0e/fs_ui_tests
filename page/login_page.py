@@ -61,7 +61,6 @@ class LoginPage(BasePage):
         expect(self.invalid_credentials_error).to_be_visible()
 
     def assert_invalid_password_first_try(self) -> None:
-        self.page.screenshot(path="debug_login_error.png")
         expect(self.page.get_by_text("Неверный пароль")).to_be_visible(timeout=15000)
 
     def assert_invalid_password_15minban(self) -> None:
@@ -71,3 +70,4 @@ class LoginPage(BasePage):
     def wait_for_successful_login(self) -> None:
         """Ожидает возврат на основной сайт после успешной авторизации."""
         self.page.wait_for_url(f"{self.base_url}**", timeout=self.timeout_ms)
+        self.page.screenshot(path="screenshot.png")
